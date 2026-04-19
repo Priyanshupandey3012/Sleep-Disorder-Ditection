@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — SleepAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="nav-brand"><i class="fas fa-moon"></i> SleepAI</a>
+    <div class="nav-links">
+        <a href="/"><i class="fas fa-home"></i> <span>Home</span></a>
+        <a href="/predict"><i class="fas fa-stethoscope"></i> <span>Predict</span></a>
+        <a href="/dashboard" class="active"><i class="fas fa-chart-bar"></i> <span>Dashboard</span></a>
+        <a href="/about"><i class="fas fa-info-circle"></i> <span>About</span></a>
+    </div>
+</nav>
+
+<div class="page-header" style="padding:30px 40px 0;">
+    <h1>Model Dashboard</h1>
+    <p>Performance metrics, dataset statistics, and feature analysis for the Sleep Disorder AI model.</p>
+</div>
+
+<!-- TOP STATS -->
+<div class="stats-grid" style="padding:24px 40px;">
+    <div class="stat-card">
+        <div class="icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-bullseye"></i></div>
+        <h2>98.5%</h2><p>XGBoost Accuracy</p>
+    </div>
+    <div class="stat-card">
+        <div class="icon" style="background:#f0fdf4;color:#16a34a;"><i class="fas fa-tree"></i></div>
+        <h2>98.0%</h2><p>Random Forest Accuracy</p>
+    </div>
+    <div class="stat-card">
+        <div class="icon" style="background:#fffbeb;color:#d97706;"><i class="fas fa-database"></i></div>
+        <h2>1,830</h2><p>Training Samples (SMOTE)</p>
+    </div>
+    <div class="stat-card">
+        <div class="icon" style="background:#fef2f2;color:#dc2626;"><i class="fas fa-vial"></i></div>
+        <h2>200</h2><p>Test Samples</p>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div class="dash-grid">
+
+        <!-- DISORDER DISTRIBUTION PIE -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Dataset Disorder Distribution</h3>
+            </div>
+            <canvas id="pieChart" height="240"></canvas>
+        </div>
+
+        <!-- MODEL COMPARISON BAR -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-bar"></i>
+                <h3>Model Accuracy Comparison</h3>
+            </div>
+            <canvas id="barChart" height="240"></canvas>
+        </div>
+
+        <!-- TOP FEATURES -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-star"></i>
+                <h3>Top Predictive Features</h3>
+            </div>
+            {% set features = [
+                ('AHI Score',             95, '#dc2626'),
+                ('SaO2 Level',            91, '#e74c3c'),
+                ('Clinical Risk Score',   88, '#d97706'),
+                ('Sleep Duration',        85, '#f59e0b'),
+                ('Wearable SpO2',         82, '#2563eb'),
+                ('Stress Level',          78, '#3b82f6'),
+                ('HRV (ms)',              74, '#7c3aed'),
+                ('Sleep Quality',         70, '#8b5cf6'),
+            ] %}
+            {% for name, score, color in features %}
+            <div class="prob-bar-wrap">
+                <div class="prob-bar-label">
+                    <span style="font-size:0.85em;">{{ name }}</span>
+                    <strong style="color:{{ color }}; font-size:0.85em;">{{ score }}%</strong>
+                </div>
+                <div class="prob-bar-bg">
+                    <div class="prob-bar-fill" style="width:{{ score }}%; background:{{ color }};"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- DISORDER DETAILS TABLE -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table"></i>
+                <h3>Disorder Overview</h3>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
+                <thead>
+                    <tr style="background:#f8fafc;">
+                        <th style="padding:10px; text-align:left; border-bottom:2px solid #e2e8f0;">Disorder</th>
+                        <th style="padding:10px; text-align:center; border-bottom:2px solid #e2e8f0;">% in Dataset</th>
+                        <th style="padding:10px; text-align:center; border-bottom:2px solid #e2e8f0;">Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in [
+                        ('None',                  '44%', 'Normal',   'success'),
+                        ('Insomnia',              '26%', 'Moderate', 'primary'),
+                        ('Sleep Apnea',           '18%', 'Severe',   'danger'),
+                        ('Narcolepsy',             '6%', 'Moderate', 'warning'),
+                        ('Restless Leg Syndrome',  '6%', 'Mild',     'info'),
+                    ] %}
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:10px; font-weight:500;">{{ row[0] }}</td>
+                        <td style="padding:10px; text-align:center;">{{ row[1] }}</td>
+                        <td style="padding:10px; text-align:center;">
+                            <span class="badge badge-{{ row[3] }}">{{ row[2] }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MEDICAL REFERENCE -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <i class="fas fa-book-medical"></i>
+                <h3>Clinical Reference Ranges</h3>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
+                {% for item in [
+                    ('AHI Score',       'Normal: <5',   'Mild: 5–15',  'Severe: >30',   '#dc2626'),
+                    ('SaO2 Level',      'Normal: >95%', 'Low: 92–95%', 'Critical: <92%','#2563eb'),
+                    ('HRV (ms)',        'High: >65',    'Normal: 40–65','Low: <40',      '#16a34a'),
+                    ('Sleep Duration',  'Ideal: 7–9h',  'Short: <6h',  'Excessive: >9h','#d97706'),
+                    ('Stress Level',    'Low: 1–3',     'Moderate: 4–6','High: 7–10',   '#7c3aed'),
+                ] %}
+                <div style="background:#f8fafc; border-radius:10px; padding:16px;
+                            border-left:4px solid {{ item[4] }};">
+                    <div style="font-weight:600; font-size:0.9em; margin-bottom:10px;
+                                color:{{ item[4] }};">{{ item[0] }}</div>
+                    <div style="font-size:0.8em; color:#64748b; line-height:1.8;">
+                        {{ item[1] }}<br>{{ item[2] }}<br>{{ item[3] }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer><p>Sleep Disorder Detection System — Model Dashboard</p></footer>
+
+<script>
+fetch('/api/stats').then(r => r.json()).then(stats => {
+
+    // Pie chart
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(stats.disorder_dist),
+            datasets: [{
+                data: Object.values(stats.disorder_dist),
+                backgroundColor: ['#16a34a','#2563eb','#dc2626','#d97706','#7c3aed'],
+                borderWidth: 2, borderColor: '#fff'
+            }]
+        },
+        options: {
+            plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+            cutout: '60%'
+        }
+    });
+
+    // Bar chart
+    new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(stats.model_comparison),
+            datasets: [{
+                label: 'Accuracy (%)',
+                data: Object.values(stats.model_comparison),
+                backgroundColor: ['#93c5fd','#2563eb'],
+                borderRadius: 8, borderWidth: 0
+            }]
+        },
+        options: {
+            scales: {
+                y: { min: 95, max: 100, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Animate feature bars
+    document.querySelectorAll('.prob-bar-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => { bar.style.width = w; }, 300);
+    });
+});
+</script>
+
+</body>
+</html>

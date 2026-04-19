@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result — SleepAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="nav-brand"><i class="fas fa-moon"></i> SleepAI</a>
+    <div class="nav-links">
+        <a href="/"><i class="fas fa-home"></i> <span>Home</span></a>
+        <a href="/predict"><i class="fas fa-stethoscope"></i> <span>Predict</span></a>
+        <a href="/dashboard"><i class="fas fa-chart-bar"></i> <span>Dashboard</span></a>
+        <a href="/about"><i class="fas fa-info-circle"></i> <span>About</span></a>
+    </div>
+</nav>
+
+<div class="result-container">
+
+    <!-- TIMESTAMP -->
+    <div style="color:#64748b; font-size:0.85em; margin-bottom:16px;">
+        <i class="fas fa-clock"></i> Assessment completed on {{ result.timestamp }}
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-hero {{ result.info.color }}">
+        <div class="result-icon">
+            <i class="fas {{ result.info.icon }}"
+               style="color:{{ result.info.hex }}"></i>
+        </div>
+        <h1 style="color:{{ result.info.hex }};">
+            {{ result.disorder }}
+        </h1>
+        <p>{{ result.info.desc }}</p>
+        <div class="confidence-badge"
+             style="background:{{ result.info.hex }}; color:white;">
+            {{ result.confidence }}% Confidence
+        </div>
+        <div style="margin-top:12px;">
+            <span class="badge badge-{{ result.info.color }}">
+                {{ result.info.severity }}
+            </span>
+        </div>
+    </div>
+
+    <!-- WARNINGS -->
+    {% if result.warnings %}
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>
+            <h3>Clinical Warnings</h3>
+        </div>
+        {% for w in result.warnings %}
+        <div class="warning-item">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ w }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+        <!-- PROBABILITY BREAKDOWN -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-bar"></i>
+                <h3>Probability Breakdown</h3>
+            </div>
+            {% set colors = {
+                'None': '#16a34a',
+                'Insomnia': '#2563eb',
+                'Sleep Apnea': '#dc2626',
+                'Narcolepsy': '#d97706',
+                'Restless Leg Syndrome': '#7c3aed'
+            } %}
+            {% for disorder, pct in result.all_probs.items() %}
+            <div class="prob-bar-wrap">
+                <div class="prob-bar-label">
+                    <span>{{ disorder }}</span>
+                    <strong style="color:{{ colors[disorder] }}">{{ pct }}%</strong>
+                </div>
+                <div class="prob-bar-bg">
+                    <div class="prob-bar-fill"
+                         style="width:{{ pct }}%; background:{{ colors[disorder] }};"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- PATIENT SUMMARY -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-user-md"></i>
+                <h3>Patient Summary</h3>
+            </div>
+            {% set summary = [
+                ('Age',             result.data.age ~ ' years'),
+                ('Gender',          result.data.gender),
+                ('Occupation',      result.data.occupation),
+                ('BMI Category',    result.data.bmi_cat),
+                ('Sleep Duration',  result.data.sleep_duration ~ ' hrs'),
+                ('Sleep Quality',   result.data.sleep_quality ~ ' / 10'),
+                ('Stress Level',    result.data.stress ~ ' / 10'),
+                ('AHI Score',       result.data.ahi),
+                ('SaO2 Level',      result.data.sao2 ~ '%'),
+                ('HRV',             result.data.hrv ~ ' ms'),
+            ] %}
+            {% for label, val in summary %}
+            <div style="display:flex; justify-content:space-between;
+                        padding:8px 0; border-bottom:1px solid #f1f5f9;
+                        font-size:0.88em;">
+                <span style="color:#64748b;">{{ label }}</span>
+                <strong>{{ val }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-lightbulb"></i>
+            <h3>Personalised Recommendations</h3>
+        </div>
+        {% for tip in result.info.tips %}
+        <div class="tip-item">
+            <div class="tip-icon"><i class="fas fa-check"></i></div>
+            <div class="tip-text">{{ tip }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="display:flex; gap:14px; margin-bottom:60px; flex-wrap:wrap;">
+        <a href="/predict" class="btn btn-primary">
+            <i class="fas fa-redo"></i> New Assessment
+        </a>
+        <a href="/" class="btn btn-outline">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+        <button onclick="window.print()" class="btn btn-outline">
+            <i class="fas fa-print"></i> Print Report
+        </button>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px;
+                padding:16px; font-size:0.83em; color:#92400e; margin-bottom:40px;">
+        <i class="fas fa-info-circle"></i>
+        <strong> Medical Disclaimer:</strong> This tool is for educational and research purposes only.
+        It is not a substitute for professional medical diagnosis. Please consult a qualified
+        healthcare provider for any health concerns.
+    </div>
+
+</div>
+
+<footer>
+    <p>Sleep Disorder Detection System — XGBoost AI Model — 98.5% Accuracy</p>
+</footer>
+
+<script>
+    // Animate probability bars on load
+    window.addEventListener('load', () => {
+        document.querySelectorAll('.prob-bar-fill').forEach(bar => {
+            const w = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => { bar.style.width = w; }, 200);
+        });
+    });
+</script>
+
+</body>
+</html>

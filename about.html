@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — SleepAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="nav-brand"><i class="fas fa-moon"></i> SleepAI</a>
+    <div class="nav-links">
+        <a href="/"><i class="fas fa-home"></i> <span>Home</span></a>
+        <a href="/predict"><i class="fas fa-stethoscope"></i> <span>Predict</span></a>
+        <a href="/dashboard"><i class="fas fa-chart-bar"></i> <span>Dashboard</span></a>
+        <a href="/about" class="active"><i class="fas fa-info-circle"></i> <span>About</span></a>
+    </div>
+</nav>
+
+<div class="about-container">
+
+    <!-- HEADER -->
+    <div style="text-align:center; padding:40px 0 30px;">
+        <div style="width:70px; height:70px; border-radius:50%; background:#eff6ff;
+                    color:#2563eb; display:flex; align-items:center; justify-content:center;
+                    font-size:1.8em; margin:0 auto 16px;">
+            <i class="fas fa-moon"></i>
+        </div>
+        <h1 style="font-size:1.8em; font-weight:700;">About SleepAI</h1>
+        <p style="color:#64748b; max-width:520px; margin:10px auto 0; font-size:0.95em;">
+            An AI-powered sleep disorder detection system built using machine learning,
+            clinical data, and wearable sensor integration.
+        </p>
+    </div>
+
+    <!-- PROJECT OVERVIEW -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-project-diagram"></i>
+            <h3>Project Overview</h3>
+        </div>
+        <p style="font-size:0.9em; color:#475569; line-height:1.8;">
+            SleepAI is a full-stack machine learning web application designed to detect sleep disorders
+            from patient vitals, lifestyle metrics, clinical markers, and wearable sensor readings.
+            The system uses an XGBoost classifier trained on 1,000 patients with realistic medical patterns,
+            achieving <strong>98.5% accuracy</strong> across 5 disorder categories.
+        </p>
+        <p style="font-size:0.9em; color:#475569; margin-top:12px; line-height:1.8;">
+            The wearable sensor columns are designed to be swapped with real data from devices like
+            Fitbit, Apple Watch, Oura Ring, or custom IoT sensors — making this system
+            future-ready for real clinical deployment.
+        </p>
+    </div>
+
+    <!-- ML PIPELINE -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-cogs"></i>
+            <h3>ML Pipeline</h3>
+        </div>
+        {% for step in [
+            ('Data Collection',      'Combined two Kaggle datasets — lifestyle features and clinical EHR markers — into one unified dataset with 23 columns.'),
+            ('Preprocessing',        'Handled missing values, parsed blood pressure, encoded categoricals (binary, ordinal, one-hot), and scaled 19 numeric features with StandardScaler.'),
+            ('Feature Engineering',  'Created 6 new features: Sleep Efficiency Score, Clinical Risk Score, Activity Index, BP Category, Age Group, and Wearable Risk Flag.'),
+            ('Class Balancing',      'Applied SMOTE (Synthetic Minority Oversampling) to balance all 5 disorder classes from imbalanced distribution to equal 366 samples each.'),
+            ('Model Training',       'Trained Random Forest (98.0%) and XGBoost (98.5%) with 5-fold cross-validation. XGBoost selected as best model.'),
+            ('Hyperparameter Tuning','GridSearchCV used to fine-tune XGBoost parameters for maximum accuracy on the 200-sample held-out test set.'),
+            ('Web Deployment',       'Flask backend serves predictions via a clean medical-grade web interface with 5 pages and real-time Chart.js dashboards.'),
+        ] %}
+        <div class="pipeline-step">
+            <div class="step-num">{{ loop.index }}</div>
+            <div class="step-content">
+                <h4>{{ step[0] }}</h4>
+                <p>{{ step[1] }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-layer-group"></i>
+            <h3>Technology Stack</h3>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px;">
+            {% for tech in [
+                ('fa-python',      '#3b82f6', 'Python 3.14',     'Core language'),
+                ('fa-flask',       '#16a34a', 'Flask',           'Web framework'),
+                ('fa-robot',       '#dc2626', 'XGBoost',         'ML model'),
+                ('fa-tree',        '#d97706', 'Scikit-learn',    'ML pipeline'),
+                ('fa-table',       '#7c3aed', 'Pandas / NumPy',  'Data processing'),
+                ('fa-chart-bar',   '#2563eb', 'Chart.js',        'Dashboards'),
+                ('fa-paint-brush', '#64748b', 'HTML / CSS',      'Frontend UI'),
+                ('fa-watch',       '#0891b2', 'Wearable Ready',  'IoT integration'),
+            ] %}
+            <div style="display:flex; align-items:center; gap:12px; background:#f8fafc;
+                        border-radius:10px; padding:14px; border:1px solid #e2e8f0;">
+                <div style="width:38px; height:38px; border-radius:8px; background:{{ tech[1] }}1a;
+                            color:{{ tech[1] }}; display:flex; align-items:center;
+                            justify-content:center; flex-shrink:0;">
+                    <i class="fas {{ tech[0] }}"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600; font-size:0.88em;">{{ tech[2] }}</div>
+                    <div style="color:#64748b; font-size:0.78em;">{{ tech[3] }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- DATASET INFO -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-database"></i>
+            <h3>Dataset Information</h3>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+            <div>
+                <h4 style="font-size:0.9em; font-weight:600; margin-bottom:12px; color:#2563eb;">
+                    Features (34 total)
+                </h4>
+                {% for cat in [
+                    ('#2563eb', 'Demographics',     'Age, Gender, Occupation'),
+                    ('#16a34a', 'Lifestyle',         'Sleep, Stress, BMI, Steps, Activity'),
+                    ('#dc2626', 'Clinical Markers',  'AHI Score, SaO2 Level, Blood Pressure'),
+                    ('#7c3aed', 'Wearable Sensors',  'SpO2, HRV, Movement, Temp, Resp Rate'),
+                    ('#d97706', 'Engineered',        'Sleep Efficiency, Clinical Risk, Activity Index'),
+                ] %}
+                <div style="display:flex; gap:10px; margin-bottom:10px; font-size:0.85em;">
+                    <div style="width:10px; height:10px; border-radius:50%;
+                                background:{{ cat[0] }}; margin-top:5px; flex-shrink:0;"></div>
+                    <div>
+                        <strong>{{ cat[1] }}</strong><br>
+                        <span style="color:#64748b;">{{ cat[2] }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div>
+                <h4 style="font-size:0.9em; font-weight:600; margin-bottom:12px; color:#2563eb;">
+                    Target Classes
+                </h4>
+                {% for d in [
+                    ('#16a34a', '0 — None',                   '44% of dataset'),
+                    ('#2563eb', '1 — Insomnia',               '26% of dataset'),
+                    ('#dc2626', '2 — Sleep Apnea',            '18% of dataset'),
+                    ('#d97706', '3 — Narcolepsy',              '6% of dataset'),
+                    ('#7c3aed', '4 — Restless Leg Syndrome',   '6% of dataset'),
+                ] %}
+                <div style="display:flex; gap:10px; margin-bottom:10px; font-size:0.85em;">
+                    <div style="width:10px; height:10px; border-radius:50%;
+                                background:{{ d[0] }}; margin-top:5px; flex-shrink:0;"></div>
+                    <div>
+                        <strong>{{ d[1] }}</strong><br>
+                        <span style="color:#64748b;">{{ d[2] }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- FUTURE WORK -->
+    <div class="card" style="margin-bottom:60px;">
+        <div class="card-header">
+            <i class="fas fa-rocket"></i>
+            <h3>Future Roadmap</h3>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;">
+            {% for item in [
+                ('fa-watch',        '#0891b2', 'Real Wearable Integration', 'Connect Fitbit, Apple Watch, Oura Ring APIs for live sensor data'),
+                ('fa-hospital',     '#dc2626', 'Real Patient Data',         'Replace synthetic dataset with actual clinical EHR records'),
+                ('fa-mobile-alt',   '#16a34a', 'Mobile App',                'Build iOS and Android apps for continuous sleep monitoring'),
+                ('fa-bell',         '#d97706', 'Smart Alerts',              'Push notifications when sensor readings indicate risk'),
+                ('fa-brain',        '#7c3aed', 'Deep Learning',             'Add LSTM model for time-series sleep stage classification'),
+                ('fa-cloud',        '#2563eb', 'Cloud Deployment',          'Deploy to AWS or Azure for public access and scalability'),
+            ] %}
+            <div style="background:#f8fafc; border-radius:10px; padding:16px;
+                        border:1px solid #e2e8f0;">
+                <i class="fas {{ item[0] }}" style="color:{{ item[1] }}; margin-bottom:10px; display:block;"></i>
+                <div style="font-weight:600; font-size:0.88em; margin-bottom:6px;">{{ item[2] }}</div>
+                <div style="font-size:0.8em; color:#64748b;">{{ item[3] }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Sleep Disorder Detection System &mdash; Built with Python, Flask & XGBoost</p>
+    <p style="margin-top:6px; font-size:0.8em;">
+        For educational and research purposes only. Not a substitute for professional medical diagnosis.
+    </p>
+</footer>
+
+</body>
+</html>
